@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Chat Room - {{ room_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <h1>Chat Room: {{ room_name }}</h1>
+    <div class="messages" id="chatContainer">
+        <!-- Received messages are displayed here -->
+        {% for message in messages %}
+            <div class="message {% if message.sender.user.username != user %}receive{% else %}send{% endif %}">
+                <p style="color: #000;">
+                    {{ message.message }}
+                    {% if message.sender.user.username != user %}
+                        <strong>-{{ message.sender.user.username }}</strong>
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+        <!-- End of received messages -->
+    </div>
+    <form class="message-form" method="post" action="">
+        {% csrf_token %}
+        <textarea id="message-input" name="message" rows="3" cols="50" placeholder="Type your message here..."></textarea><br>
+        <button id="send-button" type="submit">Send</button>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const username = '{{ user }}'; // Assuming the username is passed to the template context
+
+        messageInput.addEventListener('input', function() {
+            if (messageInput.value.trim() === '') {
+                sendButton.style.display = 'none';
+            } else {
+                sendButton.style.display = 'inline-block';
+            }
+        });
+
+        // Trigger the input event to set the initial state of the button
+        messageInput.dispatchEvent(new Event('input'));
+
+        // Determine the WebSocket protocol based on the application's URL
+        const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/notification/${encodeURIComponent('{{ room_name }}')}/`;
+
+        // Create a new WebSocket connection
+        const socket = new WebSocket(wsEndpoint);
+
+        // Successful connection event
+        socket.onopen = (event) => {
+            console.log("WebSocket connection opened!");
+        };
+
+        // Socket disconnect event
+        socket.onclose = (event) => {
+            console.log("WebSocket connection closed!");
+        };
+
+        // Receiving messages from the WebSocket
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const chatContainer = document.getElementById('chatContainer');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', data.sender !== username ? 'receive' : 'send');
+            messageElement.innerHTML = `<p style="color: #000;">${data.message}${data.sender !== username ? `<strong>-${data.sender}</strong>` : ''}</p>`;
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+
+        // Sending messages through the WebSocket
+        sendButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.send(JSON.stringify({ 'message': message, 'sender': username }));
+                messageInput.value = '';
+                sendButton.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

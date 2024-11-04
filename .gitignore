@@ -1,0 +1,39 @@
+echo "# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+# C extensions
+*.so
+# Django specific:
+db.sqlite3
+*.sqlite3
+# Add the `script` folder
+/script/
+# Environment variables
+.env
+# Logs
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+# Virtual environment
+venv/
+env/
+.env/
+# PyCharm project files
+.idea/
+
+/media/
+# Cache and temporary files
+*.cache
+*.swp
+*.swo
+*.tmp
+# Coverage reports
+htmlcov/
+.coverage
+*.cover
+*.gcda
+*.gcno
+*.gcov" > .gitignore

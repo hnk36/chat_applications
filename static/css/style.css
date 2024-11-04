@@ -1,0 +1,36 @@
+
+ body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message .sender {
+            font-weight: bold;
+        }
+        .message .timestamp {
+            font-size: 0.8em;
+            color: #999;
+        }
+        .message-form {
+            margin-top: 20px;
+        }
+        .message-form button {
+            display: none;
+        }
+        .receive {
+            text-align: left;
+        }
+        .send {
+            text-align: right;
+        }
